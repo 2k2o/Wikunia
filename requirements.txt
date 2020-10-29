@@ -1,4 +1,8 @@
 feedparser==6.0.2
-json
-pathlib
-datetime
+tqdm
+scikit-learn
+beautifulsoup4
+plotly
+pandas
+spacy
+umap-learn
