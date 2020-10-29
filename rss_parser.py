@@ -35,6 +35,7 @@ for feed in tqdm(feeds):
             entry["feed"] = feed["name"]
             if entry.link not in urls:
                 l.append(entry)
+                urls.append(entry.link)
             else:
                 # update if already present
                 i = urls.index(entry.link)
