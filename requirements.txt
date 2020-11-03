@@ -1,8 +1,10 @@
+jupyter
 feedparser==6.0.2
 tqdm
 scikit-learn
 beautifulsoup4
 plotly
 pandas
-spacy
-umap-learn
+newspaper3k
+flair
+sentence-transformers
