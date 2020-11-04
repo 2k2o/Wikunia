@@ -1,0 +1,37 @@
+name: Download and Process News Entries
+
+on:
+  push:
+  schedule:
+    - cron: '30 * * * *'
+
+jobs:
+  news:
+    name: Download and Process
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8.6
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Download
+        run: |
+          python scripts/download.py
+      - name: Process
+        run: |
+          python scripts/process.py
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git commit -m "Downloaded and processed news"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
