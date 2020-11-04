@@ -36,6 +36,7 @@ def process_lang(lang):
     summaries = [BeautifulSoup(
         e['summary'], features="lxml").get_text() for e in entries]
     # tags = [[t["term"] for t in e['tags']] if "tags" in e else [] for e in entries]
+    links = [e['link'] for e in entries]
 
     data = [f"{t}. {s}" for t, s in zip(titles, summaries)]
 
@@ -56,9 +57,9 @@ def process_lang(lang):
         {
             "title": title,
             "summary": summary,
-            "embedding": emb.tolist(),
-            "low_dim_embedding": ldemb.tolist()
-        } for title, summary, emb, ldemb in zip(titles, summaries, embeddings, low_dim_embeddings)
+            "low_dim_embedding": ldemb.tolist(),
+            "link": link
+        } for title, summary, ldemb, link in zip(titles, summaries, low_dim_embeddings, links)
     ]
 
     print("Saving processed data")
