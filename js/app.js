@@ -17,13 +17,12 @@ const margins = {
 const x = d3.scaleLinear().range([margins.left, maxSize - margins.right]);
 const y = d3.scaleLinear().range([maxSize - margins.bottom, margins.top]);
 
-var div = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
+const tooltip = d3.select("#tooltip");
 
-d3.json("data/processed/2020/11/4/de.json").then(function(data) {
-    console.log(data);
+const now = new Date();
+const path = `data/processed/${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}/de.json`;
 
+d3.json(path).then(function(data) {
     x.domain(d3.extent(data, (d) => {return d.low_dim_embedding[0]; }))
     y.domain(d3.extent(data, (d) => {return d.low_dim_embedding[1]; }))
     
@@ -35,9 +34,21 @@ d3.json("data/processed/2020/11/4/de.json").then(function(data) {
         .attr("cx", d => x(d.low_dim_embedding[0]))
         .attr("cy", d => y(d.low_dim_embedding[1]))
         .on("mouseover", (event, d) => {
-            console.log(d.title);
-            div.html(d.title)
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 1.0);
+            tooltip.html(d.title)
                 .style("left", (event.pageX) + "px")
                 .style("top", (event.pageY - 28) + "px");
         })
+        .on("mouseout", function(event, d) {
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
+        })
+        .on("click", function(event, d) {
+            const win = window.open(d.link, "_blank");
+            win.focus();
+        });
+     
 });
