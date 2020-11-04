@@ -3,7 +3,6 @@ import os
 from bs4 import BeautifulSoup
 import json
 from sklearn.manifold import TSNE
-import plotly.graph_objects as go
 from flair.data import Sentence
 from flair.embeddings import SentenceTransformerDocumentEmbeddings
 from tqdm import tqdm
