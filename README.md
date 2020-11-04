@@ -5,7 +5,7 @@ News analysis and visualization
 # TODO
 
 - [x] One function to scrape and compute clustering
-- [ ] GitHub Action
+- [x] GitHub Action
 - [ ] Front-end to show news items
 - [ ] Data cleaning per news source
 - [ ] Cluster news items and show title of centroid
