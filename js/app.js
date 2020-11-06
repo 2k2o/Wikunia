@@ -26,7 +26,9 @@ d3.json(path).then(function(data) {
     x.domain(d3.extent(data, (d) => {return d.low_dim_embedding[0]; }))
     y.domain(d3.extent(data, (d) => {return d.low_dim_embedding[1]; }))
     
-    svg.selectAll("circle")
+    const g = svg.append("g")
+
+    g.selectAll("circle")
         .data(data)
         .enter()
         .append("circle")
@@ -51,4 +53,12 @@ d3.json(path).then(function(data) {
             win.focus();
         });
      
+    svg.call(d3.zoom()
+        .extent([[0, 0], [width, height]])
+        .scaleExtent([1, 8])
+        .on("zoom", zoomed));
+  
+    function zoomed({transform}) {
+      g.attr("transform", transform);
+    }
 });
