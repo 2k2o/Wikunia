@@ -6,7 +6,7 @@ from sklearn.manifold import TSNE
 from flair.data import Sentence
 from flair.embeddings import SentenceTransformerDocumentEmbeddings
 from tqdm import tqdm
-import datetime
+from datetime import datetime
 import pathlib
 
 print("Loading model")
@@ -15,16 +15,29 @@ embedder = SentenceTransformerDocumentEmbeddings(
 
 
 def save_entries(lang, entries):
-    now = datetime.datetime.now()
+    now = datetime.now()
     out_dir = f"data/processed/{now.year}/{now.month}/{now.day}"
     pathlib.Path(out_dir).mkdir(parents=True, exist_ok=True)
     out_path = os.path.join(out_dir, lang+".json")
     with open(out_path, 'w') as outfile:
         json.dump(entries, outfile)
 
+def get_timestamps(entries):
+    timestamps = []
+    for entry in entries:
+        if "updated_parsed" in entry:
+            key = "updated_parsed"
+        elif "published_parsed" in entry:
+            key = "published_parsed"
+        else:
+            timestamps.append(datetime.now())
+            continue
+        dt = datetime(*entry[key][:6])
+        timestamps.append(datetime.timestamp(dt))
+    return timestamps
 
 def process_lang(lang):
-    now = datetime.datetime.now()
+    now = datetime.now()
     file_path = f"data/raw/{now.year}/{now.month}/{now.day}/{lang}.json"
 
     with open(file_path, 'r') as f:
@@ -37,10 +50,12 @@ def process_lang(lang):
         e['summary'], features="lxml").get_text() for e in entries]
     # tags = [[t["term"] for t in e['tags']] if "tags" in e else [] for e in entries]
     links = [e['link'] for e in entries]
+    timestamps = get_timestamps(entries)
 
     data = [f"{t}. {s}" for t, s in zip(titles, summaries)]
 
     entries = [Sentence(d, use_tokenizer=True) for d in tqdm(data)]
+    
 
     print("Calculating embeddings")
     for s in tqdm(entries):
@@ -58,8 +73,9 @@ def process_lang(lang):
             "title": title,
             "summary": summary,
             "low_dim_embedding": ldemb.tolist(),
-            "link": link
-        } for title, summary, ldemb, link in zip(titles, summaries, low_dim_embeddings, links)
+            "link": link,
+            "timestamp": timestamp
+        } for title, summary, ldemb, link, timestamp in zip(titles, summaries, low_dim_embeddings, links, timestamps)
     ]
 
     print("Saving processed data")

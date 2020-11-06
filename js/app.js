@@ -16,6 +16,7 @@ const margins = {
 // set the ranges
 const x = d3.scaleLinear().range([margins.left, maxSize - margins.right]);
 const y = d3.scaleLinear().range([maxSize - margins.bottom, margins.top]);
+const color = d3.scaleSequential(d3.interpolateYlOrRd);
 
 const tooltip = d3.select("#tooltip");
 
@@ -25,6 +26,7 @@ const path = `data/processed/${now.getFullYear()}/${now.getMonth()+1}/${now.getD
 d3.json(path).then(function(data) {
     x.domain(d3.extent(data, (d) => {return d.low_dim_embedding[0]; }))
     y.domain(d3.extent(data, (d) => {return d.low_dim_embedding[1]; }))
+    color.domain(d3.extent(data, (d) => {return d.timestamp; }))
     
     const g = svg.append("g")
 
@@ -35,6 +37,7 @@ d3.json(path).then(function(data) {
         .attr("r", 5)
         .attr("cx", d => x(d.low_dim_embedding[0]))
         .attr("cy", d => y(d.low_dim_embedding[1]))
+        .style("fill", d => color(d.timestamp))
         .on("mouseover", (event, d) => {
             tooltip.transition()
                 .duration(200)
