@@ -18,7 +18,10 @@ const x = d3.scaleLinear().range([margins.left, maxSize - margins.right]);
 const y = d3.scaleLinear().range([maxSize - margins.bottom, margins.top]);
 const color = d3.scaleSequential(d3.interpolateYlOrRd);
 
-const tooltip = d3.select("#tooltip");
+const tooltip = d3.select(".tooltip");
+// const newsSource = d3.select(".tooltip.news-source");
+const newsTitle = d3.select(".tooltip .news-title");
+const newsSummary = d3.select(".tooltip .news-summary");
 
 const now = new Date();
 const path = `data/processed/${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}/de.json`;
@@ -39,12 +42,15 @@ d3.json(path).then(function(data) {
         .attr("cy", d => y(d.low_dim_embedding[1]))
         .style("fill", d => color(d.timestamp))
         .on("mouseover", (event, d) => {
+            tooltip.style("left", (event.pageX) + "px")
+                   .style("top", (event.pageY - 28) + "px");
+            newsTitle.html(d.title);
+            newsSummary.html(d.summary);
+            
             tooltip.transition()
                 .duration(200)
                 .style("opacity", 1.0);
-            tooltip.html(d.title)
-                .style("left", (event.pageX) + "px")
-                .style("top", (event.pageY - 28) + "px");
+            
         })
         .on("mouseout", function(event, d) {
             tooltip.transition()
@@ -59,7 +65,7 @@ d3.json(path).then(function(data) {
     svg.call(d3.zoom()
         .extent([[0, 0], [width, height]])
         .scaleExtent([1, 8])
-        .translateExtent([[0, 0], [width, height]])
+        .translateExtent([[-width+100, -height+100], [2*width-100, 2*height-100]])
         .on("zoom", zoomed));
   
     function zoomed({transform}) {
