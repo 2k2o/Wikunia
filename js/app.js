@@ -27,8 +27,8 @@ const now = new Date();
 const path = `data/processed/${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}/de.json`;
 
 d3.json(path).then(function(data) {
-    x.domain(d3.extent(data, (d) => {return d.low_dim_embedding[0]; }))
-    y.domain(d3.extent(data, (d) => {return d.low_dim_embedding[1]; }))
+    x.domain(d3.extent(data, (d) => {return d.embedding[0]; }))
+    y.domain(d3.extent(data, (d) => {return d.embedding[1]; }))
     color.domain(d3.extent(data, (d) => {return d.timestamp; }))
     
     const g = svg.append("g")
@@ -38,8 +38,8 @@ d3.json(path).then(function(data) {
         .enter()
         .append("circle")
         .attr("r", 5)
-        .attr("cx", d => x(d.low_dim_embedding[0]))
-        .attr("cy", d => y(d.low_dim_embedding[1]))
+        .attr("cx", d => x(d.embedding[0]))
+        .attr("cy", d => y(d.embedding[1]))
         .style("fill", d => color(d.timestamp))
         .on("mouseover", (event, d) => {
             tooltip.style("left", (event.pageX) + "px")
