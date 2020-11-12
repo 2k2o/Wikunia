@@ -1,59 +1,86 @@
-const container = d3.select("#grid");
+const svg = d3.select("#svg");
+const g = d3.select("#main-group");
+
+const dimensions = svg.node().getBoundingClientRect();
+const width = dimensions.width;
+const height = dimensions.height;
+
+const maxSize = Math.min(width, height);
+
+const margin = 30;
 
 // set the ranges
-const color = d3.scaleSequential(d3.interpolateYlOrRd);
+const scale = d3.scaleLinear().range([margin, maxSize - margin]);
+// const x = d3.scaleLinear().range([margins.left, maxSize - margins.right]);
+// const y = d3.scaleLinear().range([maxSize - margins.bottom, margins.top]);
 
-const tooltip = d3.select(".tooltip");
+const opacity = d3.scaleLinear([0.1, 1]);
+
+const tooltip = d3.select("#tooltip");
 // const newsSource = d3.select(".tooltip.news-source");
-const newsTitle = d3.select(".tooltip .news-title");
-const newsSummary = d3.select(".tooltip .news-summary");
+const newsTitle = d3.select("#tooltip #news-title");
+const newsSummary = d3.select("#tooltip #news-summary");
 
 const now = new Date();
 const path = `data/processed/${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}/de.json`;
 
-d3.json(path).then(function(data) {
-    color.domain(d3.extent(data, (d) => {return d.timestamp; }))
+function getHexagonString(d) {
+    const dX = d.embedding[0] + 0.5;
+    const dY = d.embedding[1] + 0.433;
 
-    container.selectAll(".item")
+    // we begin at the center of the hexagon
+    // sin(60deg)*0.5
+    offsetsX = [-0.5, -0.25, 0.25, 0.5, 0.25, -0.25];
+    offsetsY = [0, -0.433, -0.433, 0, 0.433, 0.433];
+
+    let points = "";
+    for(let i=0; i < offsetsX.length; i++) {
+        points += scale(dX + offsetsX[i]) + "," + scale(dY + offsetsY[i]) + " ";
+    }
+
+    return points;
+}
+
+d3.json(path).then(function(data) {
+    opacity.domain(d3.extent(data, (d) => {return d.timestamp; }));
+    // x.domain(d3.extent(data, (d) => {return d.embedding[0]; }));
+    // y.domain(d3.extent(data, (d) => {return d.embedding[1]; }));
+    scale.domain(d3.extent(data, (d) => {return d.embedding[0] + 0.5; }));
+
+    g.selectAll("polygon")
         .data(data)
         .enter()
-        .append("div")
-        .attr("class", "item")
-        .style("grid-column", d => d.embedding[0]+1)
-        .style("grid-row", d => d.embedding[1]+1)
-        .style("border-color", d => color(d.timestamp))
-        .html(d => `
-            <h1 class="news-title">${d.title}</h1>
-            <p class="news-summary">${d.summary}</p>
-        `)
-        // .on("mouseover", (event, d) => {
-        //     tooltip.style("left", (event.pageX) + "px")
-        //            .style("top", (event.pageY - 28) + "px");
-        //     newsTitle.html(d.title);
-        //     newsSummary.html(d.summary);
+        .append("polygon")
+        .attr("points", getHexagonString)
+        .style("opacity", d => opacity(d.timestamp))
+        .on("mouseover", (event, d) => {
+            tooltip.style("left", (event.pageX + 10) + "px")
+                   .style("top", (event.pageY + 10) + "px");
+            newsTitle.html(d.title);
+            newsSummary.html(d.summary);
             
-        //     tooltip.transition()
-        //         .duration(200)
-        //         .style("opacity", 1.0);
-            
-        // })
-        // .on("mouseout", function(event, d) {
-        //     tooltip.transition()
-        //         .duration(500)
-        //         .style("opacity", 0);
-        // })
+            tooltip.style("opacity", 1.0);            
+        })
+        .on("mouseout", function(event, d) {
+            tooltip.style("opacity", 0);
+        })
         .on("click", function(event, d) {
             const win = window.open(d.link, "_blank");
             win.focus();
         });
-     
-    // container.call(d3.zoom()
-    //     .extent([[0, 0], [100, 100]])
-    //     .scaleExtent([1, 8])
-    //     // .translateExtent([[-width+100, -height+100], [2*width-100, 2*height-100]])
-    //     .on("zoom", zoomed));
+
+
+    const zoom = d3.zoom()
+        // .extent([[0, 0], [width, height]])
+        .scaleExtent([0, 10])
+        .translateExtent([[-width+100, -height+100], [2*width-100, 2*height-100]])
+        .on("zoom", zoomed);
+
+    // We set the initial translation in such a way that the hexagons are distributed around the center
+    svg.call(zoom.transform, d3.zoomIdentity.translate(width/2 - maxSize/2, height/2 - maxSize/2))
+       .call(zoom);
   
-    // function zoomed({transform}) {
-    //   container.style("transform", transform);
-    // }
+    function zoomed({transform}) {
+        g.style("transform", "translate(" + transform.x + "px," + transform.y + "px) scale(" + transform.k + ")");
+    }
 });

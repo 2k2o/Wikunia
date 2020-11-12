@@ -71,19 +71,31 @@ def process_lang(lang):
     low_dim_embeddings = reducer.fit_transform(embeddings)
 
     print("Fitting data to grid")
-    grid_size = 100
-    grid = np.array([(x, y) for x in range(grid_size) for y in range(grid_size)])
     max_x, max_y = np.max(low_dim_embeddings, axis=0)
     min_x, min_y = np.min(low_dim_embeddings, axis=0)
-
     x_spread = max_x - min_x
     y_spread = max_y - min_y
 
-    max_spread = np.max([x_spread, y_spread])
-    low_dim_embeddings[:, 0] = (low_dim_embeddings[:, 0] - min_x) * \
-        (grid_size-1) / max_spread
-    low_dim_embeddings[:, 1] = (low_dim_embeddings[:, 1] - min_y) * \
-        (grid_size-1) / max_spread
+    # bring the data into a wider representation
+    if y_spread > x_spread:
+        low_dim_embeddings[:, [0, 1]] = low_dim_embeddings[:, [1, 0]]
+        
+        min_x, min_y = min_y, min_x
+        max_x, max_y = max_y, max_x
+
+        x_spread, y_spread = y_spread, x_spread
+
+    # build a hexagon grid
+    grid_size = 100
+    grid_x = np.arange(grid_size)*1.5
+    grid_y = np.arange(grid_size)*np.sin(np.deg2rad(60))*0.5
+    grid = np.array([
+        (x if i % 2 == 0 else x+0.75, y)
+        for x in grid_x for i, y in enumerate(grid_y)
+    ])
+
+    low_dim_embeddings = (low_dim_embeddings - np.min(low_dim_embeddings, axis=0))
+    low_dim_embeddings *= np.min(np.max(grid, axis=0)/np.max(low_dim_embeddings, axis=0))
 
     cost_matrix = np.array([[np.sqrt(np.sum((d - g)**2))
                              for g in grid] for d in low_dim_embeddings])
