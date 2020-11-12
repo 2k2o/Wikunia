@@ -69,6 +69,9 @@ d3.json(path).then(function(data) {
             win.focus();
         });
 
+    const g_dimensions = g.node().getBoundingClientRect();
+    const g_width = g_dimensions.width;
+    const g_height = g_dimensions.height;
 
     const zoom = d3.zoom()
         // .extent([[0, 0], [width, height]])
@@ -77,8 +80,9 @@ d3.json(path).then(function(data) {
         .on("zoom", zoomed);
 
     // We set the initial translation in such a way that the hexagons are distributed around the center
-    svg.call(zoom.transform, d3.zoomIdentity.translate(width/2 - maxSize/2, height/2 - maxSize/2))
-       .call(zoom);
+    svg
+        .call(zoom.transform, d3.zoomIdentity.translate(width/2 - g_width/2 - margin, height/2 - g_height/2 - margin))
+        .call(zoom);
   
     function zoomed({transform}) {
         g.style("transform", "translate(" + transform.x + "px," + transform.y + "px) scale(" + transform.k + ")");
