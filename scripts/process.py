@@ -86,7 +86,7 @@ def process_lang(lang):
         x_spread, y_spread = y_spread, x_spread
 
     # build a hexagon grid
-    grid_size = 100
+    grid_size = 200
     grid_x = np.arange(grid_size)*1.5
     grid_y = np.arange(grid_size)*np.sin(np.deg2rad(60))*0.5
     grid = np.array([
