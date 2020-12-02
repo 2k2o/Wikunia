@@ -11,6 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Cache Dependencies
+        uses: actions/cache@v2
+        with:
+         path: ~/.cache/pip
+         key: pip-${{ hashFiles('requirements.txt') }}
+      - name: Cache Model
+        uses: actions/cache@v2
+        with:
+          path: ${TORCH_HOME}
+          key: model
       - name: Delete old files
         env:
           FILTER_BRANCH_SQUELCH_WARNING: 1
