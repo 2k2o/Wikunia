@@ -1,0 +1,3 @@
+epoch,steps,MSE
+0,50000,tensor(0.0099)
+0,100000,tensor(0.0105)

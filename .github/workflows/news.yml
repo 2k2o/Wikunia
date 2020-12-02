@@ -28,13 +28,13 @@ jobs:
       - name: Download
         run: |
           python scripts/download.py
-          echo "$PWD"
       - name: Process
         run: |
           python scripts/process.py
+        env:
+          TORCH_HOME: /home/runner/work/Wikunia/Wikunia/models
       - name: Commit files
         run: |
-          git pull
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
