@@ -36,7 +36,7 @@ jobs:
       - name: Delete webpage branch
         run: git branch -D webpage
       - name: Create new branch
-        run: git branch -b webpage
+        run: git checkout -b webpage
       - name: Commit files
         run: |
           git config --local user.email "action@github.com"
