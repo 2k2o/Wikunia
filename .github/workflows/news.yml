@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Delete old files
+        run: |
+          git filter-branch --index-filter "git rm -rf --cached --ignore-unmatch data/raw/*.json" HEAD
+          git filter-branch --index-filter "git rm -rf --cached --ignore-unmatch data/processed/*.json" HEAD
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
@@ -22,6 +26,7 @@ jobs:
       - name: Download
         run: |
           python scripts/download.py
+          echo "$PWD"
       - name: Process
         run: |
           python scripts/process.py

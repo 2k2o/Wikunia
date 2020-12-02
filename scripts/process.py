@@ -16,14 +16,6 @@ embedder = SentenceTransformerDocumentEmbeddings(
     'distiluse-base-multilingual-cased-v2')
 
 
-def save_entries(lang, entries):
-    now = datetime.now()
-    out_dir = f"data/processed/{now.year}/{now.month}/{now.day}"
-    pathlib.Path(out_dir).mkdir(parents=True, exist_ok=True)
-    out_path = os.path.join(out_dir, lang+".json")
-    with open(out_path, 'w') as outfile:
-        json.dump(entries, outfile)
-
 def get_timestamps(entries):
     timestamps = []
     for entry in entries:
@@ -39,8 +31,8 @@ def get_timestamps(entries):
     return timestamps
 
 def process_lang(lang):
-    now = datetime.now()
-    file_path = f"data/raw/{now.year}/{now.month}/{now.day}/{lang}.json"
+    file_path = f"data/raw/{lang}.json"
+    out_path = f"data/processed/{lang}.json"
 
     with open(file_path, 'r') as f:
         entries = json.load(f)
@@ -50,9 +42,9 @@ def process_lang(lang):
     # Clean data by filtering HTML tags
     summaries = [BeautifulSoup(
         e['summary'], features="lxml").get_text() for e in entries]
-    # tags = [[t["term"] for t in e['tags']] if "tags" in e else [] for e in entries]
     links = [e['link'] for e in entries]
     timestamps = get_timestamps(entries)
+    feeds = [e['feed'] for e in entries]
 
     data = [f"{t}. {s}" for t, s in zip(titles, summaries)]
 
@@ -67,7 +59,6 @@ def process_lang(lang):
 
     print("Reducing dimensions")
     reducer = TSNE(n_components=2)
-
     low_dim_embeddings = reducer.fit_transform(embeddings)
 
     print("Fitting data to grid")
@@ -109,12 +100,14 @@ def process_lang(lang):
             "summary": summary,
             "embedding": emb.tolist(),
             "link": link,
-            "timestamp": timestamp
-        } for title, summary, emb, link, timestamp in zip(titles, summaries, grid_embeddings, links, timestamps)
+            "timestamp": timestamp,
+            "feed": feed
+        } for title, summary, emb, link, timestamp, feed in zip(titles, summaries, grid_embeddings, links, timestamps, feeds)
     ]
 
     print("Saving processed data")
-    save_entries(lang, entries)
+    with open(out_path, 'w') as outfile:
+        json.dump(entries, outfile)
 
 
 if __name__ == "__main__":

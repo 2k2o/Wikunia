@@ -2,46 +2,49 @@ import feedparser
 from glob import glob
 import json
 import os
-import pathlib
 import datetime
 from tqdm import tqdm
 
+def date_of_entry(entry):
+    if "updated_parsed" in entry:
+        key = "updated_parsed"
+    elif "published_parsed" in entry:
+        key = "published_parsed"
+    else:
+        return datetime.datetime(1970, 1, 1, 0, 0, 0)
+
+    e = entry[key]
+    published_date = datetime.datetime(e.tm_year, e.tm_mon, e.tm_mday, e.tm_hour, e.tm_min, e.tm_sec)
+    return published_date
 
 def download_lang(lang):
-    rss_feed_file = os.path.join("./configs/news_sources", lang+".json")
-    out_root = "data/raw"
+    rss_feed_file = f"./configs/news_sources/{lang}.json"
+    out_path = f"data/raw/{lang}.json"
 
     now = datetime.datetime.now()
+    yesterday = now - datetime.timedelta(hours=24)
 
-    out_dir = os.path.join(out_root, str(now.year)+"/" +
-                        str(now.month)+"/"+str(now.day))
-
-    out_path = os.path.join(out_dir, lang+".json")
-    
+    # Load previous news entries
     entries = []
     urls = []
     if os.path.exists(out_path):
         with open(out_path, "r") as f:
             entries = json.load(f)
             urls = [e["link"] for e in entries]
-    else:
-        pathlib.Path(out_dir).mkdir(parents=True, exist_ok=True)
 
+    # Remove entries that are older than a day
+    entries = [entry for entry in entries if date_of_entry(entry) > yesterday]
+
+    # Get feeds
     with open(rss_feed_file, 'r') as f:
         feeds = json.load(f)
 
+    # Add new entries younger than a day
     for feed in tqdm(feeds):
         url = feed["feedUrl"].strip()
         newsfeed = feedparser.parse(url)
         for entry in newsfeed.entries:
-            if "updated_parsed" in entry:
-                key = "updated_parsed"
-            elif "published_parsed" in entry:
-                key = "published_parsed"
-            else:
-                continue
-
-            if now.year == entry[key].tm_year and now.month == entry[key].tm_mon and now.day == entry[key].tm_mday:
+            if date_of_entry(entry) > yesterday:
                 entry["feed"] = feed["name"]
                 if entry.link not in urls:
                     entries.append(entry)
