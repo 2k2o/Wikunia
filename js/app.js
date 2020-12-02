@@ -22,7 +22,7 @@ const newsTitle = d3.select("#tooltip #news-title");
 const newsSummary = d3.select("#tooltip #news-summary");
 
 const now = new Date();
-const path = `data/processed/de.json`;
+const path = "data/processed/de.json";
 
 function getHexagonString(d) {
     const dX = d.embedding[0] + 0.5;

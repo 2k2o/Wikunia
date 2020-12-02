@@ -7,7 +7,6 @@ from flair.data import Sentence
 from flair.embeddings import SentenceTransformerDocumentEmbeddings
 from tqdm import tqdm
 from datetime import datetime
-import pathlib
 from scipy.optimize import linear_sum_assignment
 import numpy as np
 

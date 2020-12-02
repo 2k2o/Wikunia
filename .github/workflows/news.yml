@@ -31,8 +31,6 @@ jobs:
       - name: Process
         run: |
           python scripts/process.py
-        env:
-          TORCH_HOME: /home/runner/work/Wikunia/Wikunia/models
       - name: Commit files
         run: |
           git config --local user.email "action@github.com"
