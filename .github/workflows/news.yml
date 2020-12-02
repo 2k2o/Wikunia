@@ -15,8 +15,8 @@ jobs:
         env:
           FILTER_BRANCH_SQUELCH_WARNING: 1
         run: |
-          git filter-branch --index-filter "git rm -rf --cached --ignore-unmatch data/raw/*.json" HEAD
-          git filter-branch --index-filter "git rm -rf --cached --ignore-unmatch data/processed/*.json" HEAD
+          git filter-branch --force --index-filter "git rm -rf --cached --ignore-unmatch data/raw/*.json" HEAD
+          git filter-branch --force --index-filter "git rm -rf --cached --ignore-unmatch data/processed/*.json" HEAD
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
