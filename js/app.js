@@ -22,7 +22,7 @@ const newsTitle = d3.select("#tooltip #news-title");
 const newsSummary = d3.select("#tooltip #news-summary");
 
 const now = new Date();
-const path = "data/processed/de.json";
+const url = "http://kobs.bplaced.net/news/de.json";
 
 function getHexagonString(d) {
     const dX = d.embedding[0] + 0.5;
@@ -41,7 +41,7 @@ function getHexagonString(d) {
     return points;
 }
 
-d3.json(path).then(function(data) {
+d3.json(url).then(function(data) {
     opacity.domain(d3.extent(data, (d) => {return d.timestamp; }));
     // x.domain(d3.extent(data, (d) => {return d.embedding[0]; }));
     // y.domain(d3.extent(data, (d) => {return d.embedding[1]; }));
