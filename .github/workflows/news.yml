@@ -2,8 +2,8 @@ name: Download and Process News Entries
 
 on:
   push:
-  schedule:
-    - cron: '30 * * * *'
+    branches:
+      - main
 
 jobs:
   news:
@@ -34,7 +34,7 @@ jobs:
       - name: Process
         run: python scripts/process.py
       - name: Delete webpage branch
-        run: git branch -D webpage
+        run: git push origin --delete webpage
       - name: Create new branch
         run: git checkout -b webpage
       - name: Commit files
