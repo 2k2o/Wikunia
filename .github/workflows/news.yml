@@ -35,19 +35,11 @@ jobs:
         run: python scripts/download.py
       - name: Process
         run: python scripts/process.py
-      - name: Delete webpage branch
-        run: git push origin --delete webpage
-      - name: Create new branch
-        run: git checkout -b webpage
-      - name: Commit files
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add -A
-          git commit -m "New news!"
-      - name: Push changes
-        uses: ad-m/github-push-action@master
+      - name: Upload Final File to FTP Server
+        uses: sebastianpopp/ftp-action@releases/v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: webpage
-          force: true
+          host: ${{ secrets.FTP_SERVER }}
+          user: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          localDir: "data/processed"
+          remoteDir: "www/news"
