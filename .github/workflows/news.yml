@@ -36,12 +36,11 @@ jobs:
       - name: Process
         run: python scripts/process.py
       - name: Upload Final File to FTP Server
-        - name: ssh key with passphrase
-          uses: appleboy/scp-action@master
-          with:
-            host: ${{ secrets.SCP_SERVER }}
-            username: ${{ secrets.SCP_USERNAME }}
-            key: ${{ secrets.SCP_KEY }}
-            passphrase: ${{ secrets.SCP_PASSPHRASE }}
-            source: "data/processed/de.json"
-            target: "/var/www/opensourc.es/html/__site/Wikunia"
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SCP_SERVER }}
+          username: ${{ secrets.SCP_USERNAME }}
+          key: ${{ secrets.SCP_KEY }}
+          passphrase: ${{ secrets.SCP_PASSPHRASE }}
+          source: "data/processed/de.json"
+          target: "/var/www/opensourc.es/html/__site/Wikunia"
