@@ -40,7 +40,7 @@ def process_lang(lang):
     titles = [e['title'] for e in entries]
     # Clean data by filtering HTML tags
     summaries = [BeautifulSoup(
-        e['summary'], features="lxml").get_text() for e in entries]
+        e['summary'], features="lxml").get_text() if 'summary' in e else "" for e in entries]
     links = [e['link'] for e in entries]
     timestamps = get_timestamps(entries)
     feeds = [e['feed'] for e in entries]
